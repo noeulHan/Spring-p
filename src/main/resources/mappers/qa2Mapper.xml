@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.javagreenS_hne.dao.Qa2DAO">
+	
+  <select id="totRecCnt" resultType="int">
+    select count(*) from notice2;
+  </select>
+  
+  <select id="totSearchRecCnt" resultType="int">
+    <if test="caseone == '전체'">
+	    select count(*) from notice2;
+    </if>
+    <if test="caseone != '전체'">
+	    select count(*)  from notice2 where caseone = #{caseone};
+    </if>
+  </select>
+  
+  <select id="getQaList" resultType="com.spring.javagreenS_hne.vo.Qa2VO">
+    <!-- select *, (select count(*) from boardReply2 where boardIdx=bb.idx) as replyCount, cast(TIMESTAMPDIFF(MINUTE, wDate, NOW()) / 60 as signed integer) AS diffTime  from notice2 as bb order by idx desc limit #{startIndexNo},#{pageSize}; -->
+    <if test="caseone == '전체'">
+	    select *  from notice2 order by idx desc limit #{startIndexNo},#{pageSize};
+    </if>
+    <if test="caseone != '전체'">
+	    select *  from notice2 where caseone = #{caseone} order by idx desc limit #{startIndexNo},#{pageSize};
+    </if>
+  </select>
+  
+  <select id="getQaList2" resultType="com.spring.javagreenS_hne.vo.Qa2VO">
+    <!-- select *, (select count(*) from boardReply2 where boardIdx=bb.idx) as replyCount, cast(TIMESTAMPDIFF(MINUTE, wDate, NOW()) / 60 as signed integer) AS diffTime  from notice2 as bb order by idx desc limit #{startIndexNo},#{pageSize}; -->
+	    select *  from notice2 order by idx desc limit 5;
+  </select>
+  
+  <select id="getQaSearch" resultType="com.spring.javagreenS_hne.vo.Qa2VO">
+    select *, cast(TIMESTAMPDIFF(MINUTE, wDate, NOW()) / 60 as signed integer) AS diffTime  from notice2 where ${search} like concat('%',#{searchString},'%') order by idx desc limit #{startIndexNo},#{pageSize};
+  </select>
+  
+  <select id="getQaContent" resultType="com.spring.javagreenS_hne.vo.Qa2VO">
+    select * from notice2 where idx = #{idx};
+  </select>
+
+  <!-- <![CDATA[idx > 5]]> -->
+
+  <select id="getPreNext" resultType="com.spring.javagreenS_hne.vo.Qa2VO">
+    select idx,title from notice2 where  idx in (
+      (select idx from notice2 where <![CDATA[idx < #{idx}]]> order by idx desc limit 1),
+      (select idx from notice2 where <![CDATA[idx > #{idx}]]> limit 1));
+  </select>
+  
+  <select id="getMinIdx" resultType="int">
+    select min(idx) from notice2;
+  </select>
+  
+  <select id="getCaseOne" resultType="String">
+  	select distinct caseone from notice2 order by caseone;
+  </select>
+  
+
+  
+  <insert id="setQaInput">
+    insert into notice2 values (default,#{vo.caseone},#{vo.title},#{vo.content});
+  </insert>
+  
+  
+  
+  <update id="setReadNum">
+    update notice2 set readNum = readNum + 1 where idx = #{idx};
+  </update>
+  
+  <update id="setQaUpdate">
+    update notice2 set title=#{vo.title},content=#{vo.content} where idx=#{vo.idx};
+  </update>
+  
+  
+  
+  
+  <delete id="setQaDelete">
+    delete from notice2 where idx = #{idx};
+  </delete>
+  
+  <!-- 
+  <delete id="setBoardReplyDeleteOk">
+    delete from boardReply2 where idx = #{idx};
+  </delete>
+   -->
+</mapper>

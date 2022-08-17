@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.javagreenS_hne.dao.QaDAO">
+	
+  <select id="totRecCnt" resultType="int">
+    select count(*) from notice;
+  </select>
+  
+  <select id="totSearchRecCnt" resultType="int">
+    select count(*) from notice where ${search} like concat('%',#{searchString},'%');
+  </select>
+  
+  <select id="getQaList" resultType="com.spring.javagreenS_hne.vo.QaVO">
+    select *, (select count(*) from boardReply2 where boardIdx=bb.idx) as replyCount, cast(TIMESTAMPDIFF(MINUTE, wDate, NOW()) / 60 as signed integer) AS diffTime  from notice as bb order by idx desc limit #{startIndexNo},#{pageSize};
+  </select>
+  
+  <select id="getQaList2" resultType="com.spring.javagreenS_hne.vo.QaVO">
+    select *, (select count(*) from boardReply2 where boardIdx=bb.idx) as replyCount, cast(TIMESTAMPDIFF(MINUTE, wDate, NOW()) / 60 as signed integer) AS diffTime  from notice as bb order by idx desc limit 5;
+  </select>
+  
+  <select id="getQaSearch" resultType="com.spring.javagreenS_hne.vo.QaVO">
+    select *, cast(TIMESTAMPDIFF(MINUTE, wDate, NOW()) / 60 as signed integer) AS diffTime  from notice where ${search} like concat('%',#{searchString},'%') order by idx desc limit #{startIndexNo},#{pageSize};
+  </select>
+  
+  <select id="getQaContent" resultType="com.spring.javagreenS_hne.vo.QaVO">
+    select * from notice where idx = #{idx};
+  </select>
+
+  <!-- <![CDATA[idx > 5]]> -->
+
+  <select id="getPreNext" resultType="com.spring.javagreenS_hne.vo.QaVO">
+    select idx,title from notice where  idx in (
+      (select idx from notice where <![CDATA[idx < #{idx}]]> order by idx desc limit 1),
+      (select idx from notice where <![CDATA[idx > #{idx}]]> limit 1));
+  </select>
+  
+  <select id="getMinIdx" resultType="int">
+    select min(idx) from notice;
+  </select>
+  
+
+  
+  <insert id="setQaInput">
+    insert into notice values (default,#{vo.title},#{vo.content},#{vo.caseone},default);
+  </insert>
+  
+  
+  
+  <update id="setReadNum">
+    update notice set readNum = readNum + 1 where idx = #{idx};
+  </update>
+  
+  <update id="setQaUpdate">
+    update notice set title=#{vo.title},content=#{vo.content} where idx=#{vo.idx};
+  </update>
+  
+  
+  
+  
+  <delete id="setQaDelete">
+    delete from notice where idx = #{idx};
+  </delete>
+  
+  <!-- 
+  <delete id="setBoardReplyDeleteOk">
+    delete from boardReply2 where idx = #{idx};
+  </delete>
+   -->
+</mapper>
